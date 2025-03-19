@@ -9,7 +9,7 @@ import { z } from "zod";
 
 import { deleteBoard, getBoards, moveBoard, createBoard } from "./actions";
 
-const app = express();
+export const app = express();
 const server = http.createServer(app);
 
 const io = new SocketIOServer(server, {
