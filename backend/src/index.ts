@@ -8,6 +8,7 @@ import { PrismaClient } from "@prisma/client";
 import { z } from "zod";
 
 import { deleteBoard, getBoards, moveBoard, createBoard } from "./actions";
+import { handleActionError, withErrorHandle } from "./http";
 
 export const app = express();
 const server = http.createServer(app);
@@ -31,70 +32,46 @@ app.use(
   })
 );
 
-interface HelloResponse {
-  message: string;
-}
-
-app.get("/api/hello", (_req: Request, res: Response<HelloResponse>) => {
-  res.json({ message: "Hello from Express Backend!" });
-});
-
 const CreateBoardBodySchema = z.object({
   name: z.string(),
   parentId: z.number().optional(),
 });
 
-app.post("/api/boards", async (req, res) => {
-  const { name, parentId } = CreateBoardBodySchema.parse(req.body);
-  const result = await createBoard({ name, parentId, db });
+app.post(
+  "/api/boards",
+  withErrorHandle(async (req, res) => {
+    const { name, parentId } = CreateBoardBodySchema.parse(req.body);
+    const result = await createBoard({ name, parentId, db });
 
-  if (!result.success) {
-    console.error(result.error);
+    io.emit("board-created", result);
 
-    return res.status(500).json({
-      errorCode: result.errorCode,
-    });
-  }
+    return res.json(result);
+  })
+);
 
-  io.emit("board-created", result.data);
-
-  return res.json(result.data);
-});
-
-app.get("/api/boards", async (req, res) => {
-  const result = await getBoards({ db });
-
-  if (!result.success) {
-    console.error(result.error);
-
-    return res.status(500).json({
-      errorCode: result.errorCode,
-    });
-  }
-
-  return res.json(result.data);
-});
+app.get(
+  "/api/boards",
+  withErrorHandle(async (req, res) => {
+    const result = await getBoards({ db });
+    return res.json(result);
+  })
+);
 
 const DeleteBoardParamsSchema = z.object({
   id: z.coerce.number(),
 });
 
-app.delete("/api/boards/:id", async (req: Request, res: Response) => {
-  const { id } = DeleteBoardParamsSchema.parse(req.params);
-  const result = await deleteBoard({ id, db });
+app.delete(
+  "/api/boards/:id",
+  withErrorHandle(async (req: Request, res: Response) => {
+    const { id } = DeleteBoardParamsSchema.parse(req.params);
+    const result = await deleteBoard({ id, db });
 
-  if (!result.success) {
-    console.error(result.error);
+    io.emit("board-deleted", result);
 
-    return res.status(500).json({
-      errorCode: result.errorCode,
-    });
-  }
-
-  io.emit("board-deleted", result.data);
-
-  return res.json(result.data);
-});
+    return res.json(result);
+  })
+);
 
 const MoveBoardParamsSchema = z.object({
   id: z.coerce.number(),
@@ -104,24 +81,19 @@ const MoveBoardBodySchema = z.object({
   parentId: z.coerce.number(),
 });
 
-app.put("/api/boards/:id/move", async (req, res) => {
-  const { id } = MoveBoardParamsSchema.parse(req.params.id);
-  const { parentId } = MoveBoardBodySchema.parse(req.body);
+app.put(
+  "/api/boards/:id/move",
+  withErrorHandle(async (req, res) => {
+    const { id } = MoveBoardParamsSchema.parse(req.params.id);
+    const { parentId } = MoveBoardBodySchema.parse(req.body);
 
-  const result = await moveBoard({ id, parentId, db });
+    const result = await moveBoard({ id, parentId, db });
 
-  if (!result.success) {
-    console.error(result.error);
+    io.emit("board-moved", result);
 
-    return res.status(500).json({
-      errorCode: result.errorCode,
-    });
-  }
-
-  io.emit("board-moved", result.data);
-
-  return res.json(result.data);
-});
+    return res.json(result);
+  })
+);
 
 // interface NotificationMessage {
 //   message: string;

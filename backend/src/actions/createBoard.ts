@@ -1,6 +1,10 @@
 import { Board, PrismaClient } from "@prisma/client";
-import { MAX_BOARD_DEPTH } from "./consts";
-import { ActionResult } from "./types";
+
+import {
+  BoardMaxDepthExceededError,
+  BoardParentNotFoundError,
+  UnknownError,
+} from "./errors";
 
 export type CreateBoardArgs = {
   name: string;
@@ -8,7 +12,7 @@ export type CreateBoardArgs = {
   db: PrismaClient;
 };
 
-export type CreateBoardData = {
+export type CreateBoardResult = {
   createdBoard: Board;
 };
 
@@ -16,54 +20,35 @@ export async function createBoard({
   name,
   parentId,
   db,
-}: CreateBoardArgs): Promise<ActionResult<CreateBoardData>> {
-  try {
-    let depth = 0;
+}: CreateBoardArgs): Promise<CreateBoardResult> {
+  let depth = 0;
 
-    if (parentId) {
-      const parent = await db.board.findUnique({
-        where: { id: parentId },
-        select: { depth: true },
-      });
-
-      if (!parent) {
-        return {
-          success: false,
-          error: "Parent not found",
-          errorCode: "BOARD_PARENT_NOT_FOUND",
-        };
-      }
-
-      depth = parent.depth + 1;
-
-      if (depth > 10) {
-        return {
-          success: false,
-          error: `Maximum depth of ${MAX_BOARD_DEPTH} exceeded`,
-          errorCode: "BOARD_MAX_DEPTH_EXCEEDED",
-        };
-      }
-    }
-
-    const board = await db.board.create({
-      data: {
-        name,
-        parentId: parentId || null,
-        depth,
-      },
+  if (parentId) {
+    const parent = await db.board.findUnique({
+      where: { id: parentId },
+      select: { depth: true },
     });
 
-    return {
-      success: true,
-      data: {
-        createdBoard: board,
-      },
-    };
-  } catch (error) {
-    return {
-      success: false,
-      error: (<Error>error).message,
-      errorCode: "UNKNOWN",
-    };
+    if (!parent) {
+      throw new BoardParentNotFoundError(parentId);
+    }
+
+    depth = parent.depth + 1;
+
+    if (depth > 10) {
+      throw new BoardMaxDepthExceededError();
+    }
   }
+
+  const board = await db.board.create({
+    data: {
+      name,
+      parentId: parentId || null,
+      depth,
+    },
+  });
+
+  return {
+    createdBoard: board,
+  };
 }
