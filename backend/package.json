@@ -9,6 +9,9 @@
     "test": "jest --maxWorkers=1",
     "db": "npx prisma migrate deploy && npx prisma generate"
   },
+  "prisma": {
+    "seed": "ts-node prisma/seed.ts"
+  },
   "dependencies": {
     "@prisma/client": "^6.5.0",
     "cors": "^2.8.5",
