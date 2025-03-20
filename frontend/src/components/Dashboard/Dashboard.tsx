@@ -16,6 +16,7 @@ export function Dashboard() {
       <BoardDetails
         board={state.selectedBoard}
         onCreate={state.createBoard}
+        onDelete={state.deleteBoard}
         onSelectChild={state.setSelectedBoard}
       />
     </div>

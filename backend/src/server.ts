@@ -8,7 +8,7 @@ import { PrismaClient } from "@prisma/client";
 import { z } from "zod";
 
 import { deleteBoard, getBoards, moveBoard, createBoard } from "./actions";
-import { handleActionError, withErrorHandle } from "./http";
+import { withErrorHandle } from "./http";
 
 export const app = express();
 const server = http.createServer(app);

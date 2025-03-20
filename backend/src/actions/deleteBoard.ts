@@ -8,6 +8,7 @@ export type DeleteBoardArgs = {
 export type DeleteBoardResult = {
   deletedBoard: {
     id: number;
+    parentId: number | null;
   };
 };
 
@@ -22,6 +23,7 @@ export async function deleteBoard({
   return {
     deletedBoard: {
       id: board.id,
+      parentId: board.parentId,
     },
   };
 }

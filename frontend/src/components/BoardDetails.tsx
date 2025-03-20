@@ -1,14 +1,17 @@
 import { Board } from "@/model";
+import { Button } from "./Button";
 
 export type BoardDetailsProps = {
   board: Board | null;
   onCreate?: (parentBoardId: number) => void;
+  onDelete?: (boardId: number) => void;
   onSelectChild?: (childBoard: Board) => void;
 };
 
 export function BoardDetails({
   board,
   onCreate,
+  onDelete,
   onSelectChild,
 }: BoardDetailsProps) {
   if (!board) {
@@ -23,12 +26,10 @@ export function BoardDetails({
     <div className="bg-white rounded-xl shadow-lg text-lg pl-5 pr-5 pt-3 pb-3 flex-1">
       <div className="flex flex-row justify-between">
         <h1 className="text-gray-900">🗂️ {board.name}</h1>
-        <button
-          className="bg-blue-500 text-white rounded-md pl-3 pr-3"
-          onClick={() => onCreate?.(board.id)}
-        >
-          + Add
-        </button>
+        <div className="flex gap-2">
+          <Button onClick={() => onCreate?.(board.id)}>+ Add</Button>
+          <Button onClick={() => onDelete?.(board.id)}>Remove</Button>
+        </div>
       </div>
       <div className="text-sm text-gray-700 mt-5">
         Boards ({board.children.length})
