@@ -13,7 +13,11 @@ export function Dashboard() {
   return (
     <div className="flex flex-row gap-2 m-6">
       <BoardsTree boards={state.boards} onSelect={state.setSelectedBoard} />
-      <BoardDetails board={state.selectedBoard} onCreate={state.createBoard} />
+      <BoardDetails
+        board={state.selectedBoard}
+        onCreate={state.createBoard}
+        onSelectChild={state.setSelectedBoard}
+      />
     </div>
   );
 }

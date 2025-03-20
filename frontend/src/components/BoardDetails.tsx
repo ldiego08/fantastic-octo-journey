@@ -3,9 +3,14 @@ import { Board } from "@/model";
 export type BoardDetailsProps = {
   board: Board | null;
   onCreate?: (parentBoardId: number) => void;
+  onSelectChild?: (childBoard: Board) => void;
 };
 
-export function BoardDetails({ board, onCreate }: BoardDetailsProps) {
+export function BoardDetails({
+  board,
+  onCreate,
+  onSelectChild,
+}: BoardDetailsProps) {
   if (!board) {
     return (
       <div className="bg-white rounded-xl shadow-lg text-lg p-3 flex-1">
@@ -33,6 +38,7 @@ export function BoardDetails({ board, onCreate }: BoardDetailsProps) {
           <div
             key={childBoard.id}
             className="bg-gray-200 rounded-md p-5 text-gray-900 text-sm font-bold hover:bg-gray-300 cursor-pointer"
+            onClick={() => onSelectChild?.(childBoard)}
           >
             {childBoard.name}
           </div>

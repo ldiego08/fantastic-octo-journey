@@ -1,7 +1,16 @@
-import { useBoardsQuery, useCreateBoardMutation } from "@/hooks";
+import { useBoardsQuery, useCreateBoardMutation, useSocket } from "@/hooks";
 import { Board } from "@/model";
 import { useBoardStore } from "@/store";
 import { useEffect } from "react";
+
+export type BoardCreatedData = {
+  createdBoard: {
+    id: number;
+    name: string;
+    depth: number;
+    parentId: number;
+  };
+};
 
 export type UseDashboardState =
   | {
@@ -17,7 +26,9 @@ export type UseDashboardState =
 
 export function useDashboardState(): UseDashboardState {
   const store = useBoardStore();
-  const { data, isLoading, status } = useBoardsQuery();
+  const socket = useSocket();
+
+  const { data, isLoading, status, refetch } = useBoardsQuery();
   const createBoardMutation = useCreateBoardMutation();
 
   useEffect(() => {
@@ -25,6 +36,21 @@ export function useDashboardState(): UseDashboardState {
       store.setBoards(data.boards);
     }
   }, [data, status]);
+
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleBoardCreated = async () => {
+      // TODO: manually update store instead of refetching
+      await refetch();
+    };
+
+    socket.on("board-created", handleBoardCreated);
+
+    return () => {
+      socket.off("board-created", handleBoardCreated);
+    };
+  }, [refetch, socket]);
 
   if (isLoading) {
     return {
