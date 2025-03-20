@@ -1,6 +1,4 @@
 import { PrismaClient } from "@prisma/client";
-import { ActionResult } from "./types";
-import { UnknownError } from "./errors";
 
 export type DeleteBoardArgs = {
   id: number;

@@ -95,10 +95,6 @@ app.put(
   })
 );
 
-// interface NotificationMessage {
-//   message: string;
-// }
-
 io.on("connection", (socket) => {
   console.log("Client connected");
 
@@ -106,14 +102,6 @@ io.on("connection", (socket) => {
     console.log("Client disconnected");
   });
 });
-
-// // Broadcast notification every second
-// setInterval(() => {
-//   const notification: NotificationMessage = {
-//     message: "Server notification: " + new Date().toLocaleString(),
-//   };
-//   io.emit("notification", notification);
-// }, 1000);
 
 const PORT = process.env.PORT || 3001;
 

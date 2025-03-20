@@ -1,10 +1,6 @@
 import { Board, PrismaClient } from "@prisma/client";
 
-import {
-  BoardMaxDepthExceededError,
-  BoardParentNotFoundError,
-  UnknownError,
-} from "./errors";
+import { BoardMaxDepthExceededError, BoardParentNotFoundError } from "./errors";
 
 export type CreateBoardArgs = {
   name: string;

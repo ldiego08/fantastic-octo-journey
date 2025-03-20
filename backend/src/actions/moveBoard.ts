@@ -1,6 +1,7 @@
 import { PrismaClient } from "@prisma/client";
-import { ActionResult } from "./types";
+
 import { MAX_BOARD_DEPTH } from "./consts";
+
 import {
   BoardMaxDepthExceededError,
   BoardNotFoundError,
