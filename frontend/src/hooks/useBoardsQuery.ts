@@ -8,6 +8,7 @@ export const useBoardsQuery = () =>
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/boards`
       );
+
       const json = await res.json();
 
       return json as {
